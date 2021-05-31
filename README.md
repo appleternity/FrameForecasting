@@ -50,6 +50,106 @@ Under construction!
 ## Experiment
 We implement several baselines.
 
+### Naive Baselines: Replay and Prior
+```console
+usage: naive_baseline.py [-h] [--device DEVICE] [--block BLOCK] [--data DATA]
+                         [--model MODEL] [--downsample DOWNSAMPLE]
+                         [--skip SKIP]
+
+Naive Baseline.
+
+optional arguments:
+  -h, --help               show this help message and exit
+  --device DEVICE          device used for computing tfidf [cpu/cuda:0/cuda:1]
+  --block BLOCK            story block size
+  --data DATA              Corpus used for training and testing [bookcorpus/coda19]
+  --model MODEL            Model type [replay/prior]
+  --downsample DOWNSAMPLE  Downsampling size
+  --skip SKIP              Skipping distance for replay baseline
+```
+
+To run the replay baseline, use the following command. You can adjust the value of `skip` to run the replay baseline with a longer distance.
+```console
+python naive_baseline.py --block 20 --data bookcorpus --model replay --device cuda:0 [--skip 0]
+```
+
+To run the prior baseline, use the following command.
+```console
+python naive_baseline.py --block 20 --data bookcorpus --model prior --device cuda:0 [--downsample 88720]
+```
+
+### IR Baseline
+```console
+usage: ir_baseline.py [-h] [--device DEVICE] [--block BLOCK] [--data DATA]
+                      [--downsample DOWNSAMPLE]
+
+IR Baseline.
+
+optional arguments:
+  -h, --help                show this help message and exit
+  --device DEVICE           device used for computing tfidf [cpu/cuda:0/cuda:1]
+  --block BLOCK             story block size
+  --data DATA               Corpus used for training and testing [bookcorpus/coda19]
+  --downsample DOWNSAMPLE   Downsampling size
+```
+
+To run the ir baseline, use the following command. Since the data is huge, it will require gpu to accerlate. Please specify the gpu resource using the device flag. 
+```console
+python ir_baseline.py --block 20 --data bookcorpus --device cuda:0 [--downsample 88720]
+```
+
+### ML Baseline: LGBM & RandomForest
+```console
+usage: ml_baseline.py [-h] [--device DEVICE] [--block BLOCK] [--data DATA]
+                      [--downsample DOWNSAMPLE] [--history HISTORY]
+                      [--n_jobs N_JOBS] [--model MODEL]
+
+ML Baseline (LGBM / RandomForest).
+
+optional arguments:
+  -h, --help                show this help message and exit
+  --device DEVICE           device used for computing tfidf [cpu/cuda:0/cuda:1]
+  --block BLOCK             story block size
+  --data DATA               Corpus used for training and testing [bookcorpus/coda19]
+  --downsample DOWNSAMPLE   Downsampling size
+  --history HISTORY         Number of story blocks used for input
+  --n_jobs N_JOBS           Processes used for computing
+  --model MODEL             ML model. (LGBM / RandomForest)
+```
+
+To run the ml baseline, use the following command. The default history flag is `None` which will only use **one** previous story block as the input feature. You can specify it to a number `n` to use n story blocks. The hyper-parameters are hard-coded in the script but feel free to change if needed.
+```console
+python ml_baseline.py --block 20 --data bookcorpus --device cuda:0 --model LGBM [--history 2] [--n_jobs 10] [--downsample 88720]
+```
+
+We also have an ablation study script that is based on `ml_baseline.py`. You can use the following command to run the ablation study.
+The `removed_dim` is the dimension that you want to remove for the ablation study.
+```console
+python ablation_exp.py --block 20 --data bookcorpus --device cuda:0 --model LGBM --removed_dim 10 [--n_jobs 10]
+```
+To run the same experiment using the same setting in our paper, use the following command.
+```console
+python ablation_exp.py
+```
+
+where each argument mean:
+```console
+usage: ablation_exp.py [-h] [--device DEVICE] [--block BLOCK] [--data DATA]
+                       [--n_jobs N_JOBS] [--model MODEL]
+                       [--removed_dim REMOVED_DIM]
+
+Ablation Study for ML Baseline.
+
+optional arguments:
+  -h, --help                  show this help message and exit
+  --device DEVICE             device used for computing tfidf [cpu/cuda:0/cuda:1]
+  --block BLOCK               story block size
+  --data DATA                 Corpus used for training and testing [bookcorpus/coda19]
+  --n_jobs N_JOBS             Processes used for computing
+  --model MODEL               ML model. [LGBM / RandomForest]
+  --removed_dim REMOVED_DIM   Dimention you want to remove.
+```
+
 
 
 ## Using Frame-Forecasting in other places.
