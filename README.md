@@ -150,6 +150,46 @@ optional arguments:
   --removed_dim REMOVED_DIM   Dimention you want to remove.
 ```
 
+### DAE Baseline
+```console
+usage: dae_baseline.py [-h] [--device DEVICE] [--block BLOCK] [--data DATA]
+                       [--downsample DOWNSAMPLE] [--history HISTORY]
+                       [--hidden_size HIDDEN_SIZE] [--layer_num LAYER_NUM]
+                       [--dropout_rate DROPOUT_RATE] [--epoch_num EPOCH_NUM]
+                       [--batch_size BATCH_SIZE]
+                       [--learning_rate LEARNING_RATE]
+                       [--early_stop EARLY_STOP]
+
+DAE Baseline.
+
+optional arguments:
+  -h, --help                      show this help message and exit
+  --device DEVICE                 device used for computing tfidf and training [cpu/cuda:0/cuda:1]
+  --block BLOCK                   story block size
+  --data DATA                     Corpus used for training and testing [bookcorpus/coda19]
+  --downsample DOWNSAMPLE         Downsampling size
+  --history HISTORY               Number of story blocks used for input
+  --hidden_size HIDDEN_SIZE       Hidden size of the DAE model
+  --layer_num LAYER_NUM           Number of layers of the DAE model
+  --dropout_rate DROPOUT_RATE     Dropout rate for the DAE model
+  --epoch_num EPOCH_NUM           Number of training epoch
+  --batch_size BATCH_SIZE         Batch size for training
+  --learning_rate LEARNING_RATE   Learning rate for training
+  --early_stop EARLY_STOP         Number of epoch for early stop
+```
+
+Use the following command to run the model. Default hyper-parameters are all set up in the argparser but feel free to change it if needed.
+```console
+python dae_baseline.py --block 20 --device cuda:0 --data bookcorpus --downsample 1000 --epoch_num 10
+```
+
+
+### BERT Baseline
+
+
+
+### GPT-2 Baseline
+
 
 
 ## Using Frame-Forecasting in other places.
