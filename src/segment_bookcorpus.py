@@ -33,15 +33,17 @@ def sent_segmentation():
     os.makedirs(os.path.join(data_dir, "bookcorpus", "segment"), exist_ok=True)
     for i, info in enumerate(fiction_list):
         print("\x1b[2K\r{} / {} [{:.2f}%]".format(i, len(fiction_list), 100.0*i/len(fiction_list)), end="")
-        
-        with open(info["path"], 'r', encoding='utf-8-sig') as infile:
+
+        filename = os.path.join(data_dir, "bookcorpus", "raw", info["book"])
+        if not os.path.isfile(filename): continue
+
+        with open(filename, 'r', encoding='utf-8-sig') as infile:
             text = infile.read().strip()
             text = unidecode(text)
 
         sentences = process_text_to_sentence(text)
 
-        filename = info["path"].split("/")[-1]
-        with open(os.path.join(data_dir, "bookcorpus", "segment", filename), 'w', encoding='utf-8') as outfile:
+        with open(os.path.join(data_dir, "bookcorpus", "segment", info["book"]), 'w', encoding='utf-8') as outfile:
             out_text = "\n".join(sentences)
             out_text = out_text.replace(". . .", "...")
             outfile.write(out_text)
