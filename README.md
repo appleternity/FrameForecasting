@@ -50,6 +50,224 @@ Under construction!
 ## Experiment
 We implement several baselines.
 
+### Naive Baselines: Replay and Prior
+```console
+usage: naive_baseline.py [-h] [--device DEVICE] [--block BLOCK] [--data DATA]
+                         [--model MODEL] [--downsample DOWNSAMPLE]
+                         [--skip SKIP]
+
+Naive Baseline.
+
+optional arguments:
+  -h, --help               show this help message and exit
+  --device DEVICE          device used for computing tfidf [cpu/cuda:0/cuda:1]
+  --block BLOCK            story block size
+  --data DATA              Corpus used for training and testing [bookcorpus/coda19]
+  --model MODEL            Model type [replay/prior]
+  --downsample DOWNSAMPLE  Downsampling size
+  --skip SKIP              Skipping distance for replay baseline
+```
+
+To run the replay baseline, use the following command. You can adjust the value of `skip` to run the replay baseline with a longer distance.
+```console
+python naive_baseline.py --block 20 --data bookcorpus --model replay --device cuda:0 [--skip 0]
+```
+
+To run the prior baseline, use the following command.
+```console
+python naive_baseline.py --block 20 --data bookcorpus --model prior --device cuda:0 [--downsample 88720]
+```
+
+### IR Baseline
+```console
+usage: ir_baseline.py [-h] [--device DEVICE] [--block BLOCK] [--data DATA]
+                      [--downsample DOWNSAMPLE]
+
+IR Baseline.
+
+optional arguments:
+  -h, --help                show this help message and exit
+  --device DEVICE           device used for computing tfidf [cpu/cuda:0/cuda:1]
+  --block BLOCK             story block size
+  --data DATA               Corpus used for training and testing [bookcorpus/coda19]
+  --downsample DOWNSAMPLE   Downsampling size
+```
+
+To run the ir baseline, use the following command. Since the data is huge, it will require gpu to accerlate. Please specify the gpu resource using the device flag. 
+```console
+python ir_baseline.py --block 20 --data bookcorpus --device cuda:0 [--downsample 88720]
+```
+
+### ML Baseline: LGBM & RandomForest
+```console
+usage: ml_baseline.py [-h] [--device DEVICE] [--block BLOCK] [--data DATA]
+                      [--downsample DOWNSAMPLE] [--history HISTORY]
+                      [--n_jobs N_JOBS] [--model MODEL]
+
+ML Baseline (LGBM / RandomForest).
+
+optional arguments:
+  -h, --help                show this help message and exit
+  --device DEVICE           device used for computing tfidf [cpu/cuda:0/cuda:1]
+  --block BLOCK             story block size
+  --data DATA               Corpus used for training and testing [bookcorpus/coda19]
+  --downsample DOWNSAMPLE   Downsampling size
+  --history HISTORY         Number of story blocks used for input
+  --n_jobs N_JOBS           Processes used for computing
+  --model MODEL             ML model. (LGBM / RandomForest)
+```
+
+To run the ml baseline, use the following command. The default history flag is `None` which will only use **one** previous story block as the input feature. You can specify it to a number `n` to use n story blocks. The hyper-parameters are hard-coded in the script but feel free to change if needed.
+```console
+python ml_baseline.py --block 20 --data bookcorpus --device cuda:0 --model LGBM [--history 2] [--n_jobs 10] [--downsample 88720]
+```
+
+We also have an ablation study script that is based on `ml_baseline.py`. You can use the following command to run the ablation study.
+The `removed_dim` is the dimension that you want to remove for the ablation study.
+```console
+python ablation_exp.py --block 20 --data bookcorpus --device cuda:0 --model LGBM --removed_dim 10 [--n_jobs 10]
+```
+To run the same experiment using the same setting in our paper, use the following command.
+```console
+python ablation_exp.py
+```
+
+where each argument mean:
+```console
+usage: ablation_exp.py [-h] [--device DEVICE] [--block BLOCK] [--data DATA]
+                       [--n_jobs N_JOBS] [--model MODEL]
+                       [--removed_dim REMOVED_DIM]
+
+Ablation Study for ML Baseline.
+
+optional arguments:
+  -h, --help                  show this help message and exit
+  --device DEVICE             device used for computing tfidf [cpu/cuda:0/cuda:1]
+  --block BLOCK               story block size
+  --data DATA                 Corpus used for training and testing [bookcorpus/coda19]
+  --n_jobs N_JOBS             Processes used for computing
+  --model MODEL               ML model. [LGBM / RandomForest]
+  --removed_dim REMOVED_DIM   Dimention you want to remove.
+```
+
+### DAE Baseline
+```console
+usage: dae_baseline.py [-h] [--device DEVICE] [--block BLOCK] [--data DATA]
+                       [--downsample DOWNSAMPLE] [--history HISTORY]
+                       [--hidden_size HIDDEN_SIZE] [--layer_num LAYER_NUM]
+                       [--dropout_rate DROPOUT_RATE] [--epoch_num EPOCH_NUM]
+                       [--batch_size BATCH_SIZE]
+                       [--learning_rate LEARNING_RATE]
+                       [--early_stop EARLY_STOP]
+
+DAE Baseline.
+
+optional arguments:
+  -h, --help                      show this help message and exit
+  --device DEVICE                 device used for computing tfidf and training [cpu/cuda:0/cuda:1]
+  --block BLOCK                   story block size
+  --data DATA                     Corpus used for training and testing [bookcorpus/coda19]
+  --downsample DOWNSAMPLE         Downsampling size
+  --history HISTORY               Number of story blocks used for input
+  --hidden_size HIDDEN_SIZE       Hidden size of the DAE model
+  --layer_num LAYER_NUM           Number of layers of the DAE model
+  --dropout_rate DROPOUT_RATE     Dropout rate for the DAE model
+  --epoch_num EPOCH_NUM           Number of training epoch
+  --batch_size BATCH_SIZE         Batch size for training
+  --learning_rate LEARNING_RATE   Learning rate for training
+  --early_stop EARLY_STOP         Number of epoch for early stop
+```
+
+Use the following command to run the model. Default hyper-parameters are all set up in the argparser but feel free to change it if needed.
+```console
+python dae_baseline.py --block 20 --device cuda:0 --data bookcorpus --downsample 1000 --epoch_num 10
+```
+
+### BERT Baseline
+```console
+usage: bert_baseline.py [-h] [--device DEVICE] [--version VERSION]
+                        [--epoch_num EPOCH_NUM] [--block BLOCK]
+                        [--batch_size BATCH_SIZE]
+                        [--eval_batch_size EVAL_BATCH_SIZE]
+                        [--learning_rate LEARNING_RATE]
+                        [--early_stop_epoch EARLY_STOP_EPOCH]
+                        [--valid_sample_num VALID_SAMPLE_NUM]
+                        [--train_sample_num TRAIN_SAMPLE_NUM]
+                        [--max_len MAX_LEN] [--data_name DATA_NAME]
+                        [--model_type MODEL_TYPE] [--downsample DOWNSAMPLE]
+                        [--possible_batch_size POSSIBLE_BATCH_SIZE]
+                        [--history HISTORY]
+
+Bert Baseline.
+
+optional arguments:
+  -h, --help                show this help message and exit
+  --device DEVICE           Device used for training
+  --version VERSION         Naming for version control
+  --epoch_num EPOCH_NUM     Numbers of training epochs
+  --block BLOCK             Size of the story block
+  --max_len MAX_LEN         The maximum length of tokens
+  --data_name DATA_NAME     Corpus used for training and testing
+  --model_type MODEL_TYPE   Pretrained model [bert / scibert]
+  --downsample DOWNSAMPLE   Downsampling size
+  --possible_batch_size     POSSIBLE_BATCH_SIZE
+  --history HISTORY         Number of past story blocks used for input
+  --batch_size BATCH_SIZE   Training batch size
+  --eval_batch_size EVAL_BATCH_SIZE     Evaluating batch size
+  --learning_rate LEARNING_RATE         Learning rate used for the adam optimizer
+  --early_stop_epoch EARLY_STOP_EPOCH   Number of epochs for early stopping if there is no improvement
+  --valid_sample_num VALID_SAMPLE_NUM   Number of instances used for validation
+  --train_sample_num TRAIN_SAMPLE_NUM   Number of instances used for training in each epoch
+```
+
+Use the following command to run the bert baseline. You can change `possible_batch_size` to match the GPU resource you have.
+The script will process in `possible_batch_size` but will only update the parameters once it meets the `batch_size`.
+Change `model_type` to `scibert` if needed.
+```console
+python bert_baseline.py --data_name bookcorpus --block 20 --device cuda:0 --epoch_num 200 --early_stop_epoch 5 --model_type bert --batch_size 32 --history 1 [--possible_batch_size 2] [--downsample 88720]
+```
+
+
+### GPT-2 Baseline
+The script is borrowed from huggingface's sample script. We follow all the default parameters in their implementation.
+Added arguments are described as follow.
+```console
+usage: generation_baseline.py [-h] --model_type MODEL_TYPE
+                              --model_name_or_path MODEL_NAME_OR_PATH
+                              [--prompt PROMPT] [--length LENGTH]
+                              [--stop_token STOP_TOKEN]
+                              [--temperature TEMPERATURE]
+                              [--repetition_penalty REPETITION_PENALTY]
+                              [--k K] [--p P] [--prefix PREFIX]
+                              [--padding_text PADDING_TEXT]
+                              [--xlm_language XLM_LANGUAGE] [--seed SEED]
+                              [--no_cuda]
+                              [--num_return_sequences NUM_RETURN_SEQUENCES]
+                              [--fp16] [--block BLOCK]
+                              [--sample_num SAMPLE_NUM]
+
+optional arguments:
+  --block BLOCK             Story block size
+  --sample_num SAMPLE_NUM   Number of instances
+```
+
+You can run the following command to generate the stories. We use length 70, 150, 300, and 700 for block sizes 5, 10, 20, and 50, respectively. 
+```console
+python generation_baseline.py --model_type gpt2 --model_name_or_path gpt2 --block 20 --sample_num 10 --length 300
+```
+
+Then parse them using the following command. Change `block` size if needed. Note that the parsing script will need to be run in `python2`.
+```console
+python2 parse_gpt2_story.py --block 20
+```
+
+Then compute the scores. Change `block` size if needed.
+```console
+python eval_generation_baseline.py --block 20
+```
+
+### Event Representation Baseline
+
 
 
 ## Using Frame-Forecasting in other places.
