@@ -1,6 +1,39 @@
 # FrameForecasting
 This is the repo for paper Semantic Frame Forecasting (NAACL 2021).
 
+https://arxiv.org/pdf/2104.05604.pdf
+
+In this paper, we formulate a book as a sequence of story blocks where each story block contains a fixed number of sentences.
+We then present a **Semantic Frame Representation** to represent each story block as a TF-IDF vector over semantic frames.
+Semantic Frames are high-level concept of "things". 
+Therefore, predicting a semantic frame in the follow-up story block basically means predicting what would happen next.
+The **Semantic Frame Forecast** task aims at predicting the semantic frame representation of the follow-up story block (n+1)
+using what we have so far (story block n, n-1, ..., and so on).
+
+<p align="center">
+  <img src="https://github.com/appleternity/FrameForecasting/blob/developing/images/semantic_frame_forecast.png?raw=true" width="500px">
+</p>
+
+## Citation
+If you find our paper or code useful and you would like to use it in your work.
+Please consider cite the following paper.
+```
+@inproceedings{huang-huang-2021-semantic,
+    title = "Semantic Frame Forecast",
+    author = "Huang, Chieh-Yang  and
+      Huang, Ting-Hao",
+    booktitle = "Proceedings of the 2021 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies",
+    month = jun,
+    year = "2021",
+    address = "Online",
+    publisher = "Association for Computational Linguistics",
+    url = "https://www.aclweb.org/anthology/2021.naacl-main.215",
+    pages = "2702--2713",
+    abstract = "This paper introduces Semantic Frame Forecast, a task that predicts the semantic frames that will occur in the next 10, 100, or even 1,000 sentences in a running story. Prior work focused on predicting the immediate future of a story, such as one to a few sentences ahead. However, when novelists write long stories, generating a few sentences is not enough to help them gain high-level insight to develop the follow-up story. In this paper, we formulate a long story as a sequence of {``}story blocks,{''} where each block contains a fixed number of sentences (e.g., 10, 100, or 200). This formulation allows us to predict the follow-up story arc beyond the scope of a few sentences. We represent a story block using the term frequencies (TF) of semantic frames in it, normalized by each frame{'}s inverse document frequency (IDF). We conduct semantic frame forecast experiments on 4,794 books from the Bookcorpus and 7,962 scientific abstracts from CODA-19, with block sizes ranging from 5 to 1,000 sentences. The results show that automated models can forecast the follow-up story blocks better than the random, prior, and replay baselines, indicating the feasibility of the task. We also learn that the models using the frame representation as features outperform all the existing approaches when the block size is over 150 sentences. The human evaluation also shows that the proposed frame representation, when visualized as word clouds, is comprehensible, representative, and specific to humans.",
+}
+```
+
+
 ## Dataset
 Two of the datasets are used in our paper, Bookcorpus and CODA-19.
 We will describe how to obtain the dataset and preprocess the code here.
@@ -15,11 +48,12 @@ Each of the field means:
 - genre: Genre of the book.
 - title: Book name.
 - author: Author name.
-- start: The first line of the meaningful content (matched by regular expression).
-- end: The last line of the meaningful content (matched by regular expression).
+- start: The first line of the meaningful content (Matched by regular expression. Might need to update when you process your own data.)
+- end: The last line of the meaningful content (Matched by regular expression. Might need to update when you process your own data.)
 
 #### Getting book
 Run the following script. This script will create a folder `data/bookcorpus/raw` and store all the books there.
+It is getting harder and harder to crawl books from Smashwords.com. Please try it several times.
 ```console
 python get_books.py
 ```
@@ -42,10 +76,17 @@ You can parse it using the following script. This script will create a folder `d
 python dependency_parsing.py [--gpu 0] [--start_index 0] [--end_index 100000]
 ```
 
+#### Update Boundary
+The newly downloaded data can be slightly different from our version. Therefore, you will need to update the boundary (`start` and `end` position in the `clean_split.json` file). You can run the following command to update the positions.
+```console
+python update_boundary.py
+```
 
 ### CODA-19
-Under construction!
+You can access the processed CODA-19 data here. Just download it and extract all the data to `data/coda19` folder.
+https://drive.google.com/drive/folders/1jUaXX9X_EBfCm8kRD0e9BL10VL4rowi6?usp=sharing
 
+If you want to process it by yourself, you will need to run `semanic frame parser` and `depedency parser`. 
 
 ## Experiment
 We implement several baselines.
@@ -332,38 +373,24 @@ optional arguments:
   --history HISTORY                   Number of story blocks used for input
 ```
 
+## Using Existing Frame-Forecasting models
+We release the LGBM models. If you want to use the existing models for prediction.
+Please go to the following link to download the models!
+Notice that you will need to follow the above data processing steps to prepare the data first.
+https://drive.google.com/drive/folders/15WxGuj6BJXI3L5FOg0grjq6aTZiqXqD6?usp=sharing
+
+Here is the main result table on Bookcorpus and LGBM work relatively better when story blocks are larger.
+As a result, we choose to release LGBM models first.
+We will release the BERT model soon to help people get better prediction when story blocks are smaller.
+(But you can still train the model on your own!)
+
+<p align="center">
+  <img src="https://github.com/appleternity/FrameForecasting/blob/developing/images/frame_prediction_main_result.png?raw=true" width="600">
+</p>
 
 
-## Using Frame-Forecasting in other places.
-We have a wrapper that can take a piece of text and predict its follow-up frame representation.
-The wrapper is built on top of our LGBM models. Please go to the following link to download the models!
-
-1. **Upload LGBM models**
-2. **Insert a picture here to show the **
-
-We will release the BERT model and its wrapper soon to help people get better prediction when story blocks are smaller.
-
-## Citation
-If you find our paper or code useful and you would like to use it in your work.
-Please consider cite the following paper.
-```
-@inproceedings{huang-huang-2021-semantic,
-    title = "Semantic Frame Forecast",
-    author = "Huang, Chieh-Yang  and
-      Huang, Ting-Hao",
-    booktitle = "Proceedings of the 2021 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies",
-    month = jun,
-    year = "2021",
-    address = "Online",
-    publisher = "Association for Computational Linguistics",
-    url = "https://www.aclweb.org/anthology/2021.naacl-main.215",
-    pages = "2702--2713",
-    abstract = "This paper introduces Semantic Frame Forecast, a task that predicts the semantic frames that will occur in the next 10, 100, or even 1,000 sentences in a running story. Prior work focused on predicting the immediate future of a story, such as one to a few sentences ahead. However, when novelists write long stories, generating a few sentences is not enough to help them gain high-level insight to develop the follow-up story. In this paper, we formulate a long story as a sequence of {``}story blocks,{''} where each block contains a fixed number of sentences (e.g., 10, 100, or 200). This formulation allows us to predict the follow-up story arc beyond the scope of a few sentences. We represent a story block using the term frequencies (TF) of semantic frames in it, normalized by each frame{'}s inverse document frequency (IDF). We conduct semantic frame forecast experiments on 4,794 books from the Bookcorpus and 7,962 scientific abstracts from CODA-19, with block sizes ranging from 5 to 1,000 sentences. The results show that automated models can forecast the follow-up story blocks better than the random, prior, and replay baselines, indicating the feasibility of the task. We also learn that the models using the frame representation as features outperform all the existing approaches when the block size is over 150 sentences. The human evaluation also shows that the proposed frame representation, when visualized as word clouds, is comprehensible, representative, and specific to humans.",
-}
-```
-
-## Report Questions.
+## I Have Some Questions
 If you have any question, please contact me at <chiehyang@psu.edu>.
-I will be happy to answer your questions :")
+I will be happy to answer your questions :").
 
 
