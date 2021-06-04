@@ -72,7 +72,10 @@ def batch_parsing():
         with codecs.open(filename, 'r', encoding='utf-8') as infile:
             for line in infile:
                 frames, _, _ = parse_frame(line)
-                results.append(frames)
+                results.append({
+                    "text": line,
+                    "frame": frames,
+                })
 
         with codecs.open(os.path.join(data_dir, "bookcorpus", "frame", info["book"]), 'w', encoding='utf-8') as outfile:
             json.dump(results, outfile, indent=2)

@@ -4,7 +4,7 @@ from config import *
 import wget
 import time
 
-SLEEP_TIME = 0.3
+SLEEP_TIME = 3
 
 def load_book_info():
     with open(os.path.join(data_dir, "bookcorpus", "clean_split.json"), 'r', encoding='utf-8') as infile:

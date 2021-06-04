@@ -81,8 +81,10 @@ def remove_header():
                         chapter_one = i
                         break
 
+            # cannot find chapter 1
             if chapter_one == -1:
                 continue
+            # remove the wired cases where chapter 1 come after more than 300 lines
             if chapter_one > 300:
                 continue
 
